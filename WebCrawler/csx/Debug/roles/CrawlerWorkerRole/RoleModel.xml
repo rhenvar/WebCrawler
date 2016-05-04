@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RoleModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="CrawlerWorkerRole" version="2.9.6496.3" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+  <Startup>
+    <Task commandLine="DiagnosticsPluginLauncher.exe" taskType="background" relativePath="plugins\Diagnostics">
+      <Environment>
+        <Variable name="IsEmulated" value="true" />
+        <Variable name="RdModuleName" value="Diagnostics" />
+        <Variable name="WaRoleType" value="WorkerRole" />
+      </Environment>
+    </Task>
+  </Startup>
+  <Runtime>
+    <EntryPoint>
+      <NetFxEntryPoint assemblyName="CrawlerWorkerRole.dll" targetFrameworkVersion="v4.0" />
+    </EntryPoint>
+  </Runtime>
+  <Properties>
+    <Property name="TargetFrameworkVersion" value="v4.5.2" />
+    <Property name="RoleType" value="Worker" />
+    <Property name="RoleName" value="CrawlerWorkerRole" />
+    <Property name="ProjectName" value="CrawlerWorkerRole" />
+    <Property name="Configuration" value="Debug" />
+    <Property name="Platform" value="AnyCPU" />
+    <Property name="RoleTargetFramework" value="v4.5.2" />
+    <Property name="OutputDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\obj\Debug\CrawlerWorkerRole\" />
+    <Property name="EntryPoint" value="CrawlerWorkerRole.dll" />
+    <Property name="SourceDir" value="" />
+    <Property name="SitePhysicalPath" value="" />
+    <Property name="TargetRuntimeVersion" value="v4.0" />
+  </Properties>
+</RoleModel>

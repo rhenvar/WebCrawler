@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>2.9</ProductVersion>
+    <ProjectGuid>b7d7b59d-6222-43c2-aa6d-3c3720396a8e</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WebCrawler</RootNamespace>
+    <AssemblyName>WebCrawler</AssemblyName>
+    <StartDevelopmentStorage>True</StartDevelopmentStorage>
+    <Name>WebCrawler</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- Items for the project -->
+  <ItemGroup>
+    <ServiceDefinition Include="ServiceDefinition.csdef" />
+    <ServiceConfiguration Include="ServiceConfiguration.Local.cscfg" />
+    <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CrawlerWebRole\CrawlerWebRole.csproj">
+      <Name>CrawlerWebRole</Name>
+      <Project>{4d48901d-8d59-4532-a2bb-e8c2b8e44552}</Project>
+      <Private>True</Private>
+      <RoleType>Web</RoleType>
+      <RoleName>CrawlerWebRole</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+    <ProjectReference Include="..\CrawlerWorkerRole\CrawlerWorkerRole.csproj">
+      <Name>CrawlerWorkerRole</Name>
+      <Project>{fda659e6-30a2-4305-84f8-5a4110af9e18}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>CrawlerWorkerRole</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CrawlerWebRoleContent\" />
+    <Folder Include="CrawlerWorkerRoleContent\" />
+  </ItemGroup>
+  <ItemGroup>
+    <DiagnosticsConfiguration Include="CrawlerWebRoleContent\diagnostics.wadcfgx" />
+    <DiagnosticsConfiguration Include="CrawlerWorkerRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <!-- Import the target files for this project template -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <CloudExtensionsDir Condition=" '$(CloudExtensionsDir)' == '' ">$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Windows Azure Tools\2.9\</CloudExtensionsDir>
+  </PropertyGroup>
+  <Import Project="$(CloudExtensionsDir)Microsoft.WindowsAzure.targets" />
+</Project>

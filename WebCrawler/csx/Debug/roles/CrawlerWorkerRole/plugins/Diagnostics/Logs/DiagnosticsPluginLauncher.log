@@ -1,0 +1,15 @@
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] DiagnosticsStoreRootPath set to: C:\Users\rhenvar\AppData\Local\dftmp\Resources\9ef6662e-2343-43af-88d3-393ecb83fb6f
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Loading config file: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Config file to read: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Checking VM Type
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Extension set to Emulator Mode
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Reading XML configuration file
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Bypassing private config decryption
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Stopping the running plugin, if any
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] No DiagnosticsPlugin is running.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Killing any DiagnosticsPlugin that might remain.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Killing any MonAgentHost that might remain.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:45 AM] Diagnostics plugin stopped successfully
+DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:45 AM] Resetting DiagnosticPlugin
