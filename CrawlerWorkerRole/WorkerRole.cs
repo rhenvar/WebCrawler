@@ -14,6 +14,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.IO;
+using CloudLibrary;
 
 namespace CrawlerWorkerRole
 {
@@ -26,55 +27,16 @@ namespace CrawlerWorkerRole
 
         private HashSet<string> visitedUrls = new HashSet<string>();
 
-        private CloudQueue queue;
-        private CloudTable table;
+        private CloudQueue htmlQueue;
+        private CloudQueue xmlQueue;
+        private CloudTable urlTable;
 
-        // typically infinite loop?
-        // role will shut down if loop is exited
         public override void Run()
         {
             Trace.TraceInformation("CrawlerWorkerRole is running");
+
             try
             {
-                queue.FetchAttributes();
-                if (queue.ApproximateMessageCount == 0)
-                {
-                    return;
-                }
-
-                CloudQueueMessage message = queue.GetMessage();
-                queue.DeleteMessage(message);
-
-                string url = message.AsString;
-
-                // check if the url has a robots.txt (nested sitemap)
-                bool containsSitemaps= true;
-                using (var client = new WebClient())
-                {
-                    try
-                    {
-                        byte[] testResource = client.DownloadData(url + "/robots.txt");
-                        ParseRobots(testResource);
-                    }
-                    catch (ArgumentNullException a)
-                    {
-                        // no nested robots
-                        containsSitemaps = false;
-                    }
-                }
-
-                if (!containsSitemaps)
-                {
-                    if (url.EndsWith(".xml"))
-                    {
-                        ParseXML(url);
-                    }
-                    else
-                    {
-                        ParseHTML(url);
-                    }
-                }
-
                 this.RunAsync(this.cancellationTokenSource.Token).Wait(1000);
             }
 
@@ -97,11 +59,14 @@ namespace CrawlerWorkerRole
             bool result = base.OnStart();
 
             Trace.TraceInformation("CrawlerWorkerRole has been started");
-            queue = queueClient.GetQueueReference("myurls");
-            queue.CreateIfNotExists();
+            htmlQueue = queueClient.GetQueueReference("htmlqueue");
+            htmlQueue.CreateIfNotExists();
 
-            table = tableClient.GetTableReference("urltable");
-            table.CreateIfNotExists();
+            xmlQueue = queueClient.GetQueueReference("xmlqueue");
+            xmlQueue.CreateIfNotExists();
+
+            urlTable = tableClient.GetTableReference("urltable");
+            urlTable.CreateIfNotExists();
 
             return result;
         }
@@ -123,43 +88,53 @@ namespace CrawlerWorkerRole
 
         private async Task RunAsync(CancellationToken cancellationToken)
         {
-            // TODO: Replace the following with your own logic.
             while (!cancellationToken.IsCancellationRequested)
             {
                 Trace.TraceInformation("Working");
+
+                // parse xml and html from queue
+                CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
+                if (xmlMessage != null)
+                {
+                    ParseXmlUrl(xmlMessage.AsString);
+                    xmlQueue.DeleteMessage(xmlMessage);
+                }
+
+                CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
+                if (htmlMessage != null)
+                {
+                    ParseHtmlUrl(htmlMessage.AsString);
+                    htmlQueue.DeleteMessage(htmlMessage);
+                }
                 await Task.Delay(1000);
             }
         }
 
-        // need to handle for non xml sitemaps (imdb)
-        private void ParseRobots(byte[] data)
+        private bool InsertToTable(string url, string date, string title)
         {
-            using (StreamReader reader = new StreamReader(new MemoryStream(data)))
+            return true;
+        }
+
+        private void ParseXmlUrl(string xmlUrl)
+        {
+            if (visitedUrls.Contains(xmlUrl))
             {
-                while (!reader.EndOfStream)
-                {
-                    string line = reader.ReadLine();
-                    if (line.Contains("Sitemap"))
-                    {
-                        string[] lineArray = line.Split(' ');
-                        if (!visitedUrls.Contains(lineArray[1]))
-                        {
-                            visitedUrls.Add(lineArray[1]);
-                            queue.AddMessage(new CloudQueueMessage(lineArray[1]));
-                        }
-                    }
-                }
+                return;
+            }
+            using (var client = new WebClient())
+            {
+                string xmlString = client.DownloadString(xmlUrl);
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(xmlString);
             }
         }
 
-        private void ParseXML(string url)
+        private void ParseHtmlUrl(string htmlUrl)
         {
-
-        }
-
-        private void ParseHTML(string url)
-        {
-
+            if (visitedUrls.Contains(htmlUrl))
+            {
+                return;
+            }
         }
     }
 }

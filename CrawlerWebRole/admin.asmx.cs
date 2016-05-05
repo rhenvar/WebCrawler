@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Queue;
+﻿using CloudLibrary;
+using Microsoft.WindowsAzure.Storage.Queue;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,20 +30,7 @@ namespace CrawlerWebRole
             using (var client = new WebClient())
             {
                 byte[] data = client.DownloadData("http://www.cnn.com/robots.txt");
-                using (StreamReader reader = new StreamReader(new MemoryStream(data)))
-                {
-                    while (!reader.EndOfStream)
-                    {
-                        string line = reader.ReadLine();
-                        string[] testLine = line.Split(' ');
-                        CloudQueue queue = AccountManager.queueClient.GetQueueReference("myurls");
-                        queue.CreateIfNotExists();
-                        if (testLine[1].Contains(".xml"))
-                        {
-                            queue.AddMessage(new CloudQueueMessage(testLine[1]));
-                        }
-                    }
-                }
+                ParseRobots(data);
             }
             return true;
         }
@@ -73,6 +61,28 @@ namespace CrawlerWebRole
             CloudQueue queue = AccountManager.queueClient.GetQueueReference("myurls");
             CloudQueueMessage message = queue.GetMessage(TimeSpan.FromSeconds(5));
             return message.AsString;
+        }
+
+        private void ParseRobots(byte[] data)
+        {
+            using (StreamReader reader = new StreamReader(new MemoryStream(data)))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string line = reader.ReadLine();
+                    if (line.Contains("Sitemap"))
+                    {
+                        string[] testLine = line.Split(' ');
+                        CloudQueue xmlQueue = AccountManager.queueClient.GetQueueReference("xmlqueue");
+                        xmlQueue.CreateIfNotExists();
+
+                        if (testLine[1].Contains(".xml"))
+                        {
+                            xmlQueue.AddMessage(new CloudQueueMessage(testLine[1]));
+                        }
+                    }
+                }
+            }
         }
     }
 }
