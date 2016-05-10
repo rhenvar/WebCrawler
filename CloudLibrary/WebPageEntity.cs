@@ -9,9 +9,9 @@ namespace CloudLibrary
 {
     public class WebPageEntity : TableEntity
     {
-        private string Url;
-        private string Date;
-        private string Title;
+        public string Url { get; private set; }
+        public string Date { get; private set; }
+        public string Title { get; private set; }
 
         public WebPageEntity(string url, string date, string title)
         {

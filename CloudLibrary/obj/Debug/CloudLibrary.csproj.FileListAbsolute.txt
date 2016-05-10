@@ -1,0 +1,17 @@
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\CloudLibrary.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\CloudLibrary.pdb
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.WindowsAzure.Storage.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.Services.Client.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.OData.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.Edm.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Newtonsoft.Json.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\System.Spatial.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.WindowsAzure.Storage.pdb
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.WindowsAzure.Storage.xml
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.Services.Client.xml
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.OData.xml
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Data.Edm.xml
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\System.Spatial.xml
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\obj\Debug\CloudLibrary.csprojResolveAssemblyReference.cache
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\obj\Debug\CloudLibrary.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\obj\Debug\CloudLibrary.pdb

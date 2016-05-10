@@ -1,11 +1,8 @@
 ﻿using CloudLibrary;
 using Microsoft.WindowsAzure.Storage.Queue;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Services;
 
 namespace CrawlerWebRole
@@ -17,13 +14,12 @@ namespace CrawlerWebRole
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
-    // [System.Web.Script.Services.ScriptService]
+    [System.Web.Script.Services.ScriptService]
     public class admin : System.Web.Services.WebService
     {
 
         // should only be reading data from azure table here
         // don't invoke worker or insert urls
-
         [WebMethod]
         public bool StartCrawling()
         {
@@ -80,6 +76,15 @@ namespace CrawlerWebRole
                         {
                             xmlQueue.AddMessage(new CloudQueueMessage(testLine[1]));
                         }
+                    }
+                    else if (line.Contains("Disallow"))
+                    {
+                        string[] testLine = line.Split(' ');
+                        CloudQueue forbiddenQueue = AccountManager.queueClient.GetQueueReference("forbiddenqueue");
+                        forbiddenQueue.CreateIfNotExists();
+
+                        string disallowExtension = testLine[1];
+                        forbiddenQueue.AddMessage(new CloudQueueMessage("cnn.com" + disallowExtension));
                     }
                 }
             }

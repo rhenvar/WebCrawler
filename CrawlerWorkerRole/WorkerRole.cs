@@ -1,19 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
-using System.Text.RegularExpressions;
 using System.Xml;
-using System.IO;
 using CloudLibrary;
 
 namespace CrawlerWorkerRole
@@ -26,6 +19,7 @@ namespace CrawlerWorkerRole
         public static CloudQueueClient queueClient = AccountManager.storageAccount.CreateCloudQueueClient();
 
         private HashSet<string> visitedUrls = new HashSet<string>();
+        private HashSet<string> forbiddenUrls = new HashSet<string>();
 
         private CloudQueue htmlQueue;
         private CloudQueue xmlQueue;
@@ -39,7 +33,6 @@ namespace CrawlerWorkerRole
             {
                 this.RunAsync(this.cancellationTokenSource.Token).Wait(1000);
             }
-
             finally
             {
                 this.runCompleteEvent.Set();
@@ -67,6 +60,8 @@ namespace CrawlerWorkerRole
 
             urlTable = tableClient.GetTableReference("urltable");
             urlTable.CreateIfNotExists();
+
+            PopulateForbidden();
 
             return result;
         }
@@ -117,15 +112,34 @@ namespace CrawlerWorkerRole
 
         private void ParseXmlUrl(string xmlUrl)
         {
+            // and is not a 'disallow link'
             if (visitedUrls.Contains(xmlUrl))
             {
                 return;
             }
-            using (var client = new WebClient())
+            visitedUrls.Add(xmlUrl);
+            XmlDocument xmlDoc = new XmlDocument();
+            using (XmlTextReader tr = new XmlTextReader(xmlUrl))
             {
-                string xmlString = client.DownloadString(xmlUrl);
-                XmlDocument xmlDoc = new XmlDocument();
-                xmlDoc.LoadXml(xmlString);
+                tr.Namespaces = false;
+                xmlDoc.Load(tr);
+            }
+            XmlNodeList urls = xmlDoc.SelectNodes("//loc");
+            foreach (XmlNode urlNode in urls)
+            {
+                string url = urlNode.InnerText;
+                CloudQueueMessage message = new CloudQueueMessage(url);
+                if (!IsForbidden(url))
+                {
+                    if (url.EndsWith(".xml"))
+                    {
+                        xmlQueue.AddMessage(message);
+                    }
+                    else if (url.EndsWith(".html"))
+                    {
+                        htmlQueue.AddMessage(message);
+                    }
+                }
             }
         }
 
@@ -135,6 +149,42 @@ namespace CrawlerWorkerRole
             {
                 return;
             }
+            visitedUrls.Add(htmlUrl);
+            XmlDocument xmlDoc = new XmlDocument();
+            using (XmlTextReader tr = new XmlTextReader(htmlUrl))
+            {
+                tr.Namespaces = false;
+                xmlDoc.Load(tr);
+            }
+            XmlNode date = xmlDoc.SelectSingleNode("//");
+        }
+
+        private void PopulateForbidden()
+        {
+            CloudQueue forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
+            forbiddenQueue.CreateIfNotExists();
+
+            CloudQueueMessage forbiddenMessage = forbiddenQueue.GetMessage();
+
+            while (forbiddenMessage != null)
+            {
+                string url = forbiddenMessage.AsString;
+                forbiddenUrls.Add(url);
+                forbiddenQueue.DeleteMessage(forbiddenMessage);
+                forbiddenMessage = forbiddenQueue.GetMessage();
+            }
+        }
+
+        private bool IsForbidden(string url)
+        {
+            foreach (string forbidden in forbiddenUrls)
+            {
+                if (url.Contains(forbidden))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -76,7 +76,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebPage.cs" />
     <Compile Include="WorkerRole.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -84,9 +83,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CrawlerWebRole\CrawlerWebRole.csproj">
-      <Project>{4d48901d-8d59-4532-a2bb-e8c2b8e44552}</Project>
-      <Name>CrawlerWebRole</Name>
+    <ProjectReference Include="..\CloudLibrary\CloudLibrary.csproj">
+      <Project>{d38349c6-f503-4b9f-b98b-451ce7a29a70}</Project>
+      <Name>CloudLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

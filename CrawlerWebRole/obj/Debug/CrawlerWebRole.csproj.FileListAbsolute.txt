@@ -71,3 +71,5 @@ C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\obj\Debug\CrawlerWebRole.csprojResolveAssemblyReference.cache
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\obj\Debug\CrawlerWebRole.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\obj\Debug\CrawlerWebRole.pdb
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\bin\CloudLibrary.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\bin\CloudLibrary.pdb

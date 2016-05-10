@@ -1,15 +1,18 @@
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] DiagnosticsStoreRootPath set to: C:\Users\rhenvar\AppData\Local\dftmp\Resources\9ef6662e-2343-43af-88d3-393ecb83fb6f
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Loading config file: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Config file to read: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Checking VM Type
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Extension set to Emulator Mode
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Reading XML configuration file
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Bypassing private config decryption
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Stopping the running plugin, if any
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] No DiagnosticsPlugin is running.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Killing any DiagnosticsPlugin that might remain.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:44 AM] Killing any MonAgentHost that might remain.
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:45 AM] Diagnostics plugin stopped successfully
-DiagnosticsPluginLauncher.exe Information: 0 : [5/1/2016 9:05:45 AM] Resetting DiagnosticPlugin
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] At least one other instance of the launcher is running. Will wait until they all finish
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Service running in Emulator Mode, will not wait/kill other instances of the launcher
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] DiagnosticsStoreRootPath set to: C:\Users\rhenvar\AppData\Local\dftmp\Resources\b40d008e-f430-45dd-81f0-78bef9201b4c
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Loading config file: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Config file to read: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Checking VM Type
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Emulator config file set to C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Extension set to Emulator Mode
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Reading XML configuration file
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Bypassing private config decryption
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Stopping the running plugin, if any
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Found a MonAgentHost.exe. WadArguments: "C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWebRole\plugins\Diagnostics\Monitor\x64\MonAgentHost.exe" -LocalPath "C:\Users\rhenvar\AppData\Local\dftmp\Resources\a556004b-c9e4-4a70-9f6f-18070b71dac4\WAD0105"  -ConfigFile "C:\Users\rhenvar\AppData\Local\dftmp\Resources\a556004b-c9e4-4a70-9f6f-18070b71dac4\WAD0105\Configuration\MaConfig.xml" -ShutDownEvent WADDM-ShutDown-630d80f587e242fc9f6548c1fcc06224  -TotalShutDownEvent WADDM-TotalShutDown-630d80f587e242fc9f6548c1fcc06224 -InitializedEvent WADM-StartUp-630d80f587e242fc9f6548c1fcc06224 -parent 4932 -events -wadVer1v5 -UseProxyServer -XStoreAccounts WadAccount#true#devstoreaccount1#Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==#http://127.0.0.1:10002#http://127.0.0.1:10001#http://127.0.0.1:10000.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Found a DiagnosticsPlugin.exe. WadArguments: "C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWebRole\plugins\Diagnostics\DiagnosticsPlugin.exe" DiagnosticPlugin-ShutdownEvent DiagnosticPlugin-TotalShutdownEvent -wadVer1v5.
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Loading config file: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Config file to read: C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole\approot\diagnostics.wadcfgx
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Reading XML configuration file
+DiagnosticsPluginLauncher.exe Information: 0 : [5/5/2016 10:42:44 PM] Bypassing private config decryption

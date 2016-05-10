@@ -12,7 +12,7 @@ namespace CloudLibrary
     {
         public static CloudStorageAccount storageAccount { get; private set; }
         public static CloudQueueClient queueClient { get; private set; }
-        private static string connString = "DefaultEndpointsProtocol = https; AccountName=krolazurestorage;AccountKey=M6JxbA+o55darToYsonq2T2aTgbn0ZZZc9NgArCiht7V32cOa+yze/zMIcoofu2oYFM4QQLHU3aaMhEMXfhraw==";
+        private static string connString = "DefaultEndpointsProtocol=https;AccountName=krolazurestorage;AccountKey=M6JxbA+o55darToYsonq2T2aTgbn0ZZZc9NgArCiht7V32cOa+yze/zMIcoofu2oYFM4QQLHU3aaMhEMXfhraw==";
 
         static AccountManager()
         {

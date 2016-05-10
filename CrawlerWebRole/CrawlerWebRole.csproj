@@ -116,13 +116,18 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountManager.cs" />
     <Compile Include="admin.asmx.cs">
       <DependentUpon>admin.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CloudLibrary\CloudLibrary.csproj">
+      <Project>{d38349c6-f503-4b9f-b98b-451ce7a29a70}</Project>
+      <Name>CloudLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
