@@ -61,6 +61,25 @@ namespace CrawlerWebRole
 
         private void ParseRobots(byte[] data)
         {
+            // NEED TO PARSE DISALLOW FIRST SO CRAWLING DOESN'T START WITHOUT KNOWING 
+            // WHAT IS BLACKLISTED
+            using (StreamReader reader = new StreamReader(new MemoryStream(data)))
+            {
+                while (!reader.EndOfStream)
+                {
+                    string line = reader.ReadLine();
+                    if (line.Contains("Disallow"))
+                    {
+                        string[] testLine = line.Split(' ');
+                        CloudQueue forbiddenQueue = AccountManager.queueClient.GetQueueReference("forbiddenqueue");
+                        forbiddenQueue.CreateIfNotExists();
+
+                        string disallowExtension = testLine[1];
+                        forbiddenQueue.AddMessage(new CloudQueueMessage("cnn.com" + disallowExtension));
+                    }
+                }
+            }
+
             using (StreamReader reader = new StreamReader(new MemoryStream(data)))
             {
                 while (!reader.EndOfStream)
@@ -76,15 +95,6 @@ namespace CrawlerWebRole
                         {
                             xmlQueue.AddMessage(new CloudQueueMessage(testLine[1]));
                         }
-                    }
-                    else if (line.Contains("Disallow"))
-                    {
-                        string[] testLine = line.Split(' ');
-                        CloudQueue forbiddenQueue = AccountManager.queueClient.GetQueueReference("forbiddenqueue");
-                        forbiddenQueue.CreateIfNotExists();
-
-                        string disallowExtension = testLine[1];
-                        forbiddenQueue.AddMessage(new CloudQueueMessage("cnn.com" + disallowExtension));
                     }
                 }
             }

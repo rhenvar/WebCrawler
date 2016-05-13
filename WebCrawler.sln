@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrawlerWorkerRole", "Crawle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudLibrary", "CloudLibrary\CloudLibrary.csproj", "{D38349C6-F503-4B9F-B98B-451CE7A29A70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scripts", "Scripts\Scripts.csproj", "{D5E5FBA2-7C44-4187-901C-28EB42DE9C38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{D38349C6-F503-4B9F-B98B-451CE7A29A70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D38349C6-F503-4B9F-B98B-451CE7A29A70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D38349C6-F503-4B9F-B98B-451CE7A29A70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5E5FBA2-7C44-4187-901C-28EB42DE9C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5E5FBA2-7C44-4187-901C-28EB42DE9C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5E5FBA2-7C44-4187-901C-28EB42DE9C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5E5FBA2-7C44-4187-901C-28EB42DE9C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

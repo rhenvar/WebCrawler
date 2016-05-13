@@ -15,7 +15,7 @@
     </EntryPoint>
   </Runtime>
   <Properties>
-    <Property name="TargetFrameworkVersion" value="v4.5.2" />
+    <Property name="TargetFrameworkVersion" value="v4.5" />
     <Property name="RoleType" value="Web" />
     <Property name="RoleName" value="CrawlerWebRole" />
     <Property name="ProjectName" value="CrawlerWebRole" />
@@ -23,7 +23,7 @@
     <Property name="Platform" value="AnyCPU" />
     <Property name="SetConfiguration" value="Configuration=Debug" />
     <Property name="SetPlatform" value="Platform=AnyCPU" />
-    <Property name="RoleTargetFramework" value="v4.5.2" />
+    <Property name="RoleTargetFramework" value="v4.5" />
     <Property name="OutputDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\obj\Debug\CrawlerWebRole\" />
     <Property name="EntryPoint" value="CrawlerWebRole.dll" />
     <Property name="SourceDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\" />

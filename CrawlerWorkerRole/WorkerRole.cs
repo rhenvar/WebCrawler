@@ -8,6 +8,9 @@ using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Xml;
 using CloudLibrary;
+using HtmlAgilityPack;
+using System.Linq;
+using System;
 
 namespace CrawlerWorkerRole
 {
@@ -18,11 +21,12 @@ namespace CrawlerWorkerRole
         public static CloudTableClient tableClient = AccountManager.storageAccount.CreateCloudTableClient();
         public static CloudQueueClient queueClient = AccountManager.storageAccount.CreateCloudQueueClient();
 
-        private HashSet<string> visitedUrls = new HashSet<string>();
-        private HashSet<string> forbiddenUrls = new HashSet<string>();
+        private static ConcurrentSet<string> visitedUrls = new ConcurrentSet<string>();
+        private List<string> forbiddenUrls = new List<string>(); 
 
         private CloudQueue htmlQueue;
         private CloudQueue xmlQueue;
+        private CloudQueue forbiddenQueue;
         private CloudTable urlTable;
 
         public override void Run()
@@ -31,7 +35,37 @@ namespace CrawlerWorkerRole
 
             try
             {
-                this.RunAsync(this.cancellationTokenSource.Token).Wait(1000);
+                //this.RunAsync(this.cancellationTokenSource.Token).Wait(1000);
+                ThreadPool.SetMaxThreads(4, 4);
+                while (true)
+                {
+                    Trace.TraceInformation("Working");
+
+                    // if there are new blacklist URLs (say someone starts crawling cnn
+                    // mid crawl for bleacherreport)
+                    CloudQueueMessage forbiddenMessage = forbiddenQueue.GetMessage();
+                    if (forbiddenMessage != null)
+                    {
+                        forbiddenQueue.DeleteMessage(forbiddenMessage);
+                        ParseForbiddenUrl(forbiddenMessage.AsString);
+                    }
+
+                    // parse xml and html from queue
+                    CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
+                    if (xmlMessage != null)
+                    {
+                        xmlQueue.DeleteMessage(xmlMessage);
+                        ThreadPool.QueueUserWorkItem(state => ParseXmlUrl(xmlMessage.AsString));
+                       // ParseXmlUrl(xmlMessage.AsString);
+                    }
+                    CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
+                    if (htmlMessage != null)
+                    {
+                        htmlQueue.DeleteMessage(htmlMessage);
+                        ThreadPool.QueueUserWorkItem(state => ParseHtmlUrl(htmlMessage.AsString));
+                    }
+                    Thread.Sleep(100);
+                }
             }
             finally
             {
@@ -52,16 +86,18 @@ namespace CrawlerWorkerRole
             bool result = base.OnStart();
 
             Trace.TraceInformation("CrawlerWorkerRole has been started");
+            
             htmlQueue = queueClient.GetQueueReference("htmlqueue");
             htmlQueue.CreateIfNotExists();
 
             xmlQueue = queueClient.GetQueueReference("xmlqueue");
             xmlQueue.CreateIfNotExists();
 
+            forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
+            forbiddenQueue.CreateIfNotExists();
+
             urlTable = tableClient.GetTableReference("urltable");
             urlTable.CreateIfNotExists();
-
-            PopulateForbidden();
 
             return result;
         }
@@ -83,25 +119,12 @@ namespace CrawlerWorkerRole
 
         private async Task RunAsync(CancellationToken cancellationToken)
         {
+            //ThreadPool.SetMaxThreads(3, 3);
             while (!cancellationToken.IsCancellationRequested)
             {
                 Trace.TraceInformation("Working");
 
-                // parse xml and html from queue
-                CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
-                if (xmlMessage != null)
-                {
-                    ParseXmlUrl(xmlMessage.AsString);
-                    xmlQueue.DeleteMessage(xmlMessage);
-                }
-
-                CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
-                if (htmlMessage != null)
-                {
-                    ParseHtmlUrl(htmlMessage.AsString);
-                    htmlQueue.DeleteMessage(htmlMessage);
-                }
-                await Task.Delay(1000);
+                await Task.Delay(100);
             }
         }
 
@@ -110,9 +133,12 @@ namespace CrawlerWorkerRole
             return true;
         }
 
+        //private void ParseXmlUrl(string xmlUrl)
         private void ParseXmlUrl(string xmlUrl)
         {
+            //string xmlUrl = (string)state; 
             // and is not a 'disallow link'
+
             if (visitedUrls.Contains(xmlUrl))
             {
                 return;
@@ -128,14 +154,14 @@ namespace CrawlerWorkerRole
             foreach (XmlNode urlNode in urls)
             {
                 string url = urlNode.InnerText;
-                CloudQueueMessage message = new CloudQueueMessage(url);
-                if (!IsForbidden(url))
+                if (!IsForbidden(url) && !visitedUrls.Contains(url))
                 {
-                    if (url.EndsWith(".xml"))
+                    CloudQueueMessage message = new CloudQueueMessage(url);
+                    if (UriValidator.IsValidHtml(url))
                     {
                         xmlQueue.AddMessage(message);
                     }
-                    else if (url.EndsWith(".html"))
+                    else if (UriValidator.IsValidHtml(url))
                     {
                         htmlQueue.AddMessage(message);
                     }
@@ -145,34 +171,65 @@ namespace CrawlerWorkerRole
 
         private void ParseHtmlUrl(string htmlUrl)
         {
+
             if (visitedUrls.Contains(htmlUrl))
             {
                 return;
             }
+            // grab title and date, throw into table (start 3rd concurrent thread?)
             visitedUrls.Add(htmlUrl);
-            XmlDocument xmlDoc = new XmlDocument();
-            using (XmlTextReader tr = new XmlTextReader(htmlUrl))
+            HtmlDocument htmlDoc = new HtmlDocument();
+
+            try
             {
-                tr.Namespaces = false;
-                xmlDoc.Load(tr);
+                //htmlDoc.Load(htmlUrl);
+                using (var client = new WebClient())
+                {
+                    htmlDoc.LoadHtml(client.DownloadString(htmlUrl));
+                }
+
+                    if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
+                    {
+                        // error handing
+                    }
+
+                var links = htmlDoc.DocumentNode.Descendants("a").ToList().Where(a => a.Attributes["href"] != null && a.Attributes["href"].Value != "/").Select(a => a.Attributes["href"]).ToList();
+                if (links != null && links.Count > 0)
+                {
+
+                    foreach (HtmlAttribute pageLinkAttribute in links)
+                    {
+                        string pageLink = pageLinkAttribute.Value;
+                        if (UriValidator.IsValidHtml(pageLink))
+                        {
+                            string foundUrl;
+                            if (UriValidator.IsAbsoluteUrl(pageLink))
+                            {
+                                foundUrl = pageLink;
+                            }
+                            else
+                            {
+                                var baseUrl = new Uri(htmlUrl);
+                                var url = new Uri(baseUrl, pageLink);
+                                foundUrl = url.AbsoluteUri;
+                            }
+                            CloudQueueMessage newHtmlPage = new CloudQueueMessage(foundUrl);
+                            htmlQueue.AddMessage(newHtmlPage);
+                        }
+                    }
+                }
             }
-            XmlNode date = xmlDoc.SelectSingleNode("//");
+            catch (Exception e)
+            {
+                int i = 0;
+                // error handling
+            }
         }
 
-        private void PopulateForbidden()
+        private void ParseForbiddenUrl(string forbiddenUrl)
         {
-            CloudQueue forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
-            forbiddenQueue.CreateIfNotExists();
-
-            CloudQueueMessage forbiddenMessage = forbiddenQueue.GetMessage();
-
-            while (forbiddenMessage != null)
-            {
-                string url = forbiddenMessage.AsString;
-                forbiddenUrls.Add(url);
-                forbiddenQueue.DeleteMessage(forbiddenMessage);
-                forbiddenMessage = forbiddenQueue.GetMessage();
-            }
+            if (!IsForbidden(forbiddenUrl))
+                forbiddenUrls.Add(forbiddenUrl);
         }
 
         private bool IsForbidden(string url)

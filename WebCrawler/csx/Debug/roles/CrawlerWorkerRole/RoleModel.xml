@@ -15,13 +15,13 @@
     </EntryPoint>
   </Runtime>
   <Properties>
-    <Property name="TargetFrameworkVersion" value="v4.5.2" />
+    <Property name="TargetFrameworkVersion" value="v4.5" />
     <Property name="RoleType" value="Worker" />
     <Property name="RoleName" value="CrawlerWorkerRole" />
     <Property name="ProjectName" value="CrawlerWorkerRole" />
     <Property name="Configuration" value="Debug" />
     <Property name="Platform" value="AnyCPU" />
-    <Property name="RoleTargetFramework" value="v4.5.2" />
+    <Property name="RoleTargetFramework" value="v4.5" />
     <Property name="OutputDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\obj\Debug\CrawlerWorkerRole\" />
     <Property name="EntryPoint" value="CrawlerWorkerRole.dll" />
     <Property name="SourceDir" value="" />
