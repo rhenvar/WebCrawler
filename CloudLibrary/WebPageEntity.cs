@@ -9,13 +9,13 @@ namespace CloudLibrary
 {
     public class WebPageEntity : TableEntity
     {
-        public string Url { get; private set; }
-        public string Date { get; private set; }
-        public string Title { get; private set; }
+        public string Url { get; set; }
+        public DateTime Date { get; set; }
+        public string Title { get; set; }
 
-        public WebPageEntity(string url, string date, string title)
+        public WebPageEntity(string url, DateTime date, string title)
         {
-            this.PartitionKey = url;
+            this.PartitionKey = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(url));
             this.RowKey = Guid.NewGuid().ToString();
 
             this.Url = url;

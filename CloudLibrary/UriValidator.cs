@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,11 +14,28 @@ namespace CloudLibrary
 
         public static bool IsValidHtml(string url)
         {
-            if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
+            if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute) || !IsAbsoluteUrl(url))
             {
                 return false;
             }
-            return true;
+            //if (url.EndsWith(".html"))
+            //{
+            //    return true;
+            //}
+            return url.EndsWith(".html");
+            //using (var testClient = new WebClient())
+            //{
+            //    try
+            //    {
+            //        var downloadHtml = testClient.DownloadString(url);
+            //        bool isHTML = downloadHtml.Contains("<!DOCTYPE html>");
+            //        return isHTML;
+            //    }
+            //    catch
+            //    {
+            //        return false;
+            //    }
+            //}
         }
 
         public static bool IsValidXml(string url)

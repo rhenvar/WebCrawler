@@ -27,6 +27,7 @@ namespace CrawlerWorkerRole
         private CloudQueue htmlQueue;
         private CloudQueue xmlQueue;
         private CloudQueue forbiddenQueue;
+        private CloudQueue errorQueue;
         private CloudTable urlTable;
 
         public override void Run()
@@ -50,19 +51,19 @@ namespace CrawlerWorkerRole
                         ParseForbiddenUrl(forbiddenMessage.AsString);
                     }
 
+                    CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
+                    if (htmlMessage != null)
+                    {
+                        htmlQueue.DeleteMessage(htmlMessage);
+                        ThreadPool.QueueUserWorkItem(state => ParseHtmlUrl(htmlMessage.AsString));
+                    }
                     // parse xml and html from queue
                     CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
                     if (xmlMessage != null)
                     {
                         xmlQueue.DeleteMessage(xmlMessage);
                         ThreadPool.QueueUserWorkItem(state => ParseXmlUrl(xmlMessage.AsString));
-                       // ParseXmlUrl(xmlMessage.AsString);
-                    }
-                    CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
-                    if (htmlMessage != null)
-                    {
-                        htmlQueue.DeleteMessage(htmlMessage);
-                        ThreadPool.QueueUserWorkItem(state => ParseHtmlUrl(htmlMessage.AsString));
+                        //ParseXmlUrl(xmlMessage.AsString);
                     }
                     Thread.Sleep(100);
                 }
@@ -96,6 +97,9 @@ namespace CrawlerWorkerRole
             forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
             forbiddenQueue.CreateIfNotExists();
 
+            errorQueue = queueClient.GetQueueReference("errorqueue");
+            errorQueue.CreateIfNotExists();
+
             urlTable = tableClient.GetTableReference("urltable");
             urlTable.CreateIfNotExists();
 
@@ -128,9 +132,11 @@ namespace CrawlerWorkerRole
             }
         }
 
-        private bool InsertToTable(string url, string date, string title)
+        private void InsertToTable(string url, DateTime date, string title)
         {
-            return true;
+            WebPageEntity webPage = new WebPageEntity(url, date, title);
+            TableOperation insert = TableOperation.Insert(webPage);
+            urlTable.Execute(insert);
         }
 
         //private void ParseXmlUrl(string xmlUrl)
@@ -157,7 +163,7 @@ namespace CrawlerWorkerRole
                 if (!IsForbidden(url) && !visitedUrls.Contains(url))
                 {
                     CloudQueueMessage message = new CloudQueueMessage(url);
-                    if (UriValidator.IsValidHtml(url))
+                    if (UriValidator.IsValidXml(url))
                     {
                         xmlQueue.AddMessage(message);
                     }
@@ -171,7 +177,6 @@ namespace CrawlerWorkerRole
 
         private void ParseHtmlUrl(string htmlUrl)
         {
-
             if (visitedUrls.Contains(htmlUrl))
             {
                 return;
@@ -187,43 +192,70 @@ namespace CrawlerWorkerRole
                 {
                     htmlDoc.LoadHtml(client.DownloadString(htmlUrl));
                 }
-
-                    if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
-                    {
-                        // error handing
-                    }
-
-                var links = htmlDoc.DocumentNode.Descendants("a").ToList().Where(a => a.Attributes["href"] != null && a.Attributes["href"].Value != "/").Select(a => a.Attributes["href"]).ToList();
-                if (links != null && links.Count > 0)
+                if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
                 {
-
-                    foreach (HtmlAttribute pageLinkAttribute in links)
-                    {
-                        string pageLink = pageLinkAttribute.Value;
-                        if (UriValidator.IsValidHtml(pageLink))
-                        {
-                            string foundUrl;
-                            if (UriValidator.IsAbsoluteUrl(pageLink))
-                            {
-                                foundUrl = pageLink;
-                            }
-                            else
-                            {
-                                var baseUrl = new Uri(htmlUrl);
-                                var url = new Uri(baseUrl, pageLink);
-                                foundUrl = url.AbsoluteUri;
-                            }
-                            CloudQueueMessage newHtmlPage = new CloudQueueMessage(foundUrl);
-                            htmlQueue.AddMessage(newHtmlPage);
-                        }
-                    }
+                    throw new WebException();
                 }
             }
             catch (Exception e)
             {
-                int i = 0;
-                // error handling
+                CloudQueueMessage errorMessage = new CloudQueueMessage(htmlUrl);
+                errorQueue.AddMessage(errorMessage);
             }
+
+
+            DateTime date;
+            var pageDate = htmlDoc.DocumentNode.Descendants("meta").Where(m => m.Attributes["content"] != null
+            && m.GetAttributeValue("name", "").Equals("pubdate", StringComparison.InvariantCultureIgnoreCase)
+            || m.GetAttributeValue("name", "").Equals("og:pubdate", StringComparison.InvariantCultureIgnoreCase)).Select(m => m.Attributes["content"].Value).ToList();
+            if (pageDate.Count == 0 || pageDate == null)
+            {
+                date = DateTime.Today;
+            }
+            else
+            {
+                date = DateTime.Parse(pageDate[0]);
+            }
+
+            string title;
+            var pageTitle = htmlDoc.DocumentNode.Descendants("title").Where(t => t != null).Select(t => t.InnerHtml).ToList();
+            if (pageTitle.Count == 0 || pageTitle == null)
+            {
+                title = "Page Title Not Found";
+            }
+            else
+            {
+                title = pageTitle[0];
+            }
+            ThreadPool.QueueUserWorkItem(state => InsertToTable(htmlUrl, date, title));
+
+            var links = htmlDoc.DocumentNode.Descendants("a").ToList().Where(a => a.Attributes["href"] != null && a.Attributes["href"].Value != "/").Select(a => a.Attributes["href"]).ToList();
+            if (links != null && links.Count > 0)
+            {
+
+                foreach (HtmlAttribute pageLinkAttribute in links)
+                {
+                    string pageLink = pageLinkAttribute.Value;
+
+                    string foundUrl;
+                    if (UriValidator.IsAbsoluteUrl(pageLink))
+                    {
+                        foundUrl = pageLink;
+                    }
+                    else
+                    {
+                        var baseUrl = new Uri(htmlUrl);
+                        var url = new Uri(baseUrl, pageLink);
+                        foundUrl = url.AbsoluteUri;
+                    }
+                    if (!visitedUrls.Contains(foundUrl) && UriValidator.IsValidHtml(foundUrl))
+                    {
+                        CloudQueueMessage newHtmlPage = new CloudQueueMessage(foundUrl);
+                        htmlQueue.AddMessage(newHtmlPage);
+                    }
+                }
+            }
+
         }
 
         private void ParseForbiddenUrl(string forbiddenUrl)

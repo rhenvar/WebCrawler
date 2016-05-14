@@ -63,6 +63,9 @@ namespace CrawlerWebRole
         {
             // NEED TO PARSE DISALLOW FIRST SO CRAWLING DOESN'T START WITHOUT KNOWING 
             // WHAT IS BLACKLISTED
+            CloudQueue forbiddenQueue = AccountManager.queueClient.GetQueueReference("forbiddenqueue");
+            forbiddenQueue.CreateIfNotExists();
+
             using (StreamReader reader = new StreamReader(new MemoryStream(data)))
             {
                 while (!reader.EndOfStream)
@@ -71,8 +74,6 @@ namespace CrawlerWebRole
                     if (line.Contains("Disallow"))
                     {
                         string[] testLine = line.Split(' ');
-                        CloudQueue forbiddenQueue = AccountManager.queueClient.GetQueueReference("forbiddenqueue");
-                        forbiddenQueue.CreateIfNotExists();
 
                         string disallowExtension = testLine[1];
                         forbiddenQueue.AddMessage(new CloudQueueMessage("cnn.com" + disallowExtension));
@@ -80,6 +81,8 @@ namespace CrawlerWebRole
                 }
             }
 
+            CloudQueue xmlQueue = AccountManager.queueClient.GetQueueReference("xmlqueue");
+            xmlQueue.CreateIfNotExists();
             using (StreamReader reader = new StreamReader(new MemoryStream(data)))
             {
                 while (!reader.EndOfStream)
@@ -88,8 +91,6 @@ namespace CrawlerWebRole
                     if (line.Contains("Sitemap"))
                     {
                         string[] testLine = line.Split(' ');
-                        CloudQueue xmlQueue = AccountManager.queueClient.GetQueueReference("xmlqueue");
-                        xmlQueue.CreateIfNotExists();
 
                         if (testLine[1].Contains(".xml"))
                         {
