@@ -12,35 +12,19 @@ namespace CrawlerWorkerRole
 {
     public class ThreadWorker
     {
-        protected static ConcurrentSet<string> visitedUrls = new ConcurrentSet<string>();
-        protected List<string> forbiddenUrls = new List<string>();
-
-        protected static CloudTableClient tableClient = AccountManager.storageAccount.CreateCloudTableClient();
-        protected static CloudQueueClient queueClient = AccountManager.storageAccount.CreateCloudQueueClient();
-
-        protected static CloudQueue htmlQueue = queueClient.GetQueueReference("htmlqueue");
-        protected static CloudQueue xmlQueue = queueClient.GetQueueReference("xmlqueue");
-        protected static CloudQueue forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
-        protected static CloudQueue errorQueue = queueClient.GetQueueReference("errorqueue");
-        protected static CloudTable urlTable = tableClient.GetTableReference("urltable");
-
-        protected static Queue urlInsertions = Queue.Synchronized(new Queue());
-        protected static Queue htmlDocuments = Queue.Synchronized(new Queue());
-
         internal void RunInternal()
         {
             try
             {
-                htmlQueue.CreateIfNotExists();
-                xmlQueue.CreateIfNotExists();
-                forbiddenQueue.CreateIfNotExists();
-                errorQueue.CreateIfNotExists();
-                urlTable.CreateIfNotExists();
+                WorkerRole.htmlQueue.CreateIfNotExists();
+                WorkerRole.forbiddenQueue.CreateIfNotExists();
+                WorkerRole.errorQueue.CreateIfNotExists();
+                WorkerRole.urlTable.CreateIfNotExists();
                 Run();
             }
             catch (SystemException)
             {
-                //throw;
+                throw;
             }
             catch (Exception)
             {
@@ -57,12 +41,12 @@ namespace CrawlerWorkerRole
         protected void ParseForbiddenUrl(string forbiddenUrl)
         {
             if (!IsForbidden(forbiddenUrl))
-                forbiddenUrls.Add(forbiddenUrl);
+                WorkerRole.forbiddenUrls.Add(forbiddenUrl);
         }
 
         protected bool IsForbidden(string url)
         {
-            foreach (string forbidden in forbiddenUrls)
+            foreach (string forbidden in WorkerRole.forbiddenUrls)
             {
                 if (url.Contains(forbidden))
                 {

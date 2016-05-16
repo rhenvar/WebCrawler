@@ -24,14 +24,14 @@
     <Property name="SetConfiguration" value="Configuration=Debug" />
     <Property name="SetPlatform" value="Platform=AnyCPU" />
     <Property name="RoleTargetFramework" value="v4.5" />
-    <Property name="OutputDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\obj\Debug\CrawlerWebRole\" />
+    <Property name="OutputDir" value="C:\Users\iGuest\Source\Repos\WebCrawler\WebCrawler\obj\Debug\CrawlerWebRole\" />
     <Property name="EntryPoint" value="CrawlerWebRole.dll" />
-    <Property name="SourceDir" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\" />
-    <Property name="SitePhysicalPath" value="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\" />
+    <Property name="SourceDir" value="C:\Users\iGuest\Source\Repos\WebCrawler\CrawlerWebRole\" />
+    <Property name="SitePhysicalPath" value="C:\Users\iGuest\Source\Repos\WebCrawler\CrawlerWebRole\" />
     <Property name="TargetRuntimeVersion" value="v4.0" />
   </Properties>
   <Sites>
-    <Site name="Web" physicalDirectory="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CrawlerWebRole\">
+    <Site name="Web" physicalDirectory="C:\Users\iGuest\Source\Repos\WebCrawler\CrawlerWebRole\">
       <Bindings>
         <Binding name="Endpoint1" endpointName="Endpoint1" />
       </Bindings>
