@@ -3,13 +3,15 @@
   <Role name="CrawlerWebRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=krolazurecloudservice;AccountKey=sY+cXOVjx8hlTvQ6eUbQDwEfPAfsUb30htkNe9oM1wZenIaHlDk6y2STJ6IYhyTLQSqMZ806sTSz8pq+p8UNiw==" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="dd27e5b4-9015-4348-8862-58d0f6ee5ba0" />
     </ConfigurationSettings>
   </Role>
   <Role name="CrawlerWorkerRole">
     <Instances count="4" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=krolazurecloudservice;AccountKey=sY+cXOVjx8hlTvQ6eUbQDwEfPAfsUb30htkNe9oM1wZenIaHlDk6y2STJ6IYhyTLQSqMZ806sTSz8pq+p8UNiw==" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="dd27e5b4-9015-4348-8862-58d0f6ee5ba0" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Xml;
@@ -11,61 +10,45 @@ using CloudLibrary;
 using HtmlAgilityPack;
 using System.Linq;
 using System;
+using Microsoft.WindowsAzure.ServiceRuntime;
 
 namespace CrawlerWorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private EventWaitHandle EventWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
-        public static CloudTableClient tableClient = AccountManager.storageAccount.CreateCloudTableClient();
-        public static CloudQueueClient queueClient = AccountManager.storageAccount.CreateCloudQueueClient();
+        private readonly List<Thread> threads = new List<Thread>();
+        private readonly List<ThreadWorker> workers = new List<ThreadWorker>();
 
-        private static ConcurrentSet<string> visitedUrls = new ConcurrentSet<string>();
-        private List<string> forbiddenUrls = new List<string>(); 
 
-        private CloudQueue htmlQueue;
-        private CloudQueue xmlQueue;
-        private CloudQueue forbiddenQueue;
-        private CloudQueue errorQueue;
-        private CloudTable urlTable;
 
         public override void Run()
         {
             Trace.TraceInformation("CrawlerWorkerRole is running");
-
             try
             {
-                //this.RunAsync(this.cancellationTokenSource.Token).Wait(1000);
-                ThreadPool.SetMaxThreads(4, 4);
-                while (true)
+                foreach (var worker in workers)
                 {
-                    Trace.TraceInformation("Working");
-
-                    // if there are new blacklist URLs (say someone starts crawling cnn
-                    // mid crawl for bleacherreport)
-                    CloudQueueMessage forbiddenMessage = forbiddenQueue.GetMessage();
-                    if (forbiddenMessage != null)
+                    threads.Add(new Thread(worker.RunInternal));
+                }
+                foreach (var thread in threads)
+                {
+                    thread.Start();
+                }
+                while (!EventWaitHandle.WaitOne(500))
+                {
+                    for (var i = 0; i < threads.Count; i++)
                     {
-                        forbiddenQueue.DeleteMessage(forbiddenMessage);
-                        ParseForbiddenUrl(forbiddenMessage.AsString);
+                        if (threads[i].IsAlive)
+                        {
+                            continue;
+                        }
+                        threads[i] = new Thread(workers[i].RunInternal);
+                        threads[i].Start();
                     }
-
-                    CloudQueueMessage htmlMessage = htmlQueue.GetMessage();
-                    if (htmlMessage != null)
-                    {
-                        htmlQueue.DeleteMessage(htmlMessage);
-                        ThreadPool.QueueUserWorkItem(state => ParseHtmlUrl(htmlMessage.AsString));
-                    }
-                    // parse xml and html from queue
-                    CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
-                    if (xmlMessage != null)
-                    {
-                        xmlQueue.DeleteMessage(xmlMessage);
-                        ThreadPool.QueueUserWorkItem(state => ParseXmlUrl(xmlMessage.AsString));
-                        //ParseXmlUrl(xmlMessage.AsString);
-                    }
-                    Thread.Sleep(100);
+                    EventWaitHandle.WaitOne(2000);
                 }
             }
             finally
@@ -74,35 +57,14 @@ namespace CrawlerWorkerRole
             }
         }
 
-        // good place to start running diagnostics
-        // returns true if worker is running
         public override bool OnStart()
         {
-            // Set the maximum number of concurrent connections
             ServicePointManager.DefaultConnectionLimit = 12;
-
-            // For information on handling configuration changes
-            // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
-
+            workers.Add(new XmlParser());
+            workers.Add(new HtmlTitleDateParser());
+            workers.Add(new UrlFinder());
+            workers.Add(new TableManager());
             bool result = base.OnStart();
-
-            Trace.TraceInformation("CrawlerWorkerRole has been started");
-            
-            htmlQueue = queueClient.GetQueueReference("htmlqueue");
-            htmlQueue.CreateIfNotExists();
-
-            xmlQueue = queueClient.GetQueueReference("xmlqueue");
-            xmlQueue.CreateIfNotExists();
-
-            forbiddenQueue = queueClient.GetQueueReference("forbiddenqueue");
-            forbiddenQueue.CreateIfNotExists();
-
-            errorQueue = queueClient.GetQueueReference("errorqueue");
-            errorQueue.CreateIfNotExists();
-
-            urlTable = tableClient.GetTableReference("urltable");
-            urlTable.CreateIfNotExists();
-
             return result;
         }
 
@@ -121,30 +83,139 @@ namespace CrawlerWorkerRole
             Trace.TraceInformation("CrawlerWorkerRole has stopped");
         }
 
-        private async Task RunAsync(CancellationToken cancellationToken)
+        internal class HtmlTitleDateParser : ThreadWorker 
         {
-            //ThreadPool.SetMaxThreads(3, 3);
-            while (!cancellationToken.IsCancellationRequested)
+            public override void Run()
             {
-                Trace.TraceInformation("Working");
+                while (true)
+                {
+                    CloudQueueMessage message = htmlQueue.GetMessage();
+                    if (message != null)
+                    {
+                        htmlQueue.DeleteMessage(message);
+                        ParseTitleDateHtmlUrl(message.AsString);
+                    }
+                    Thread.Sleep(10);
+                }
+            }
 
-                await Task.Delay(100);
+            private void ParseTitleDateHtmlUrl(string htmlUrl)
+            {
+                if (visitedUrls.Contains(htmlUrl))
+                {
+                    return;
+                }
+                // grab title and date, throw into table (start 3rd concurrent thread?)
+                visitedUrls.Add(htmlUrl);
+                HtmlDocument htmlDoc = new HtmlDocument();
+                try
+                {
+                    using (var client = new WebClient())
+                    {
+                        htmlDoc.LoadHtml(client.DownloadString(htmlUrl));
+                    }
+                    if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
+                    {
+                        throw new WebException();
+                    }
+                }
+                catch (Exception e)
+                {
+                    CloudQueueMessage errorMessage = new CloudQueueMessage(htmlUrl);
+                    errorQueue.AddMessage(errorMessage);
+                }
+
+                DateTime date;
+                var pageDate = htmlDoc.DocumentNode.Descendants("meta").Where(m => m.Attributes["content"] != null
+                && m.GetAttributeValue("name", "").Equals("pubdate", StringComparison.InvariantCultureIgnoreCase)
+                || m.GetAttributeValue("name", "").Equals("og:pubdate", StringComparison.InvariantCultureIgnoreCase)).Select(m => m.Attributes["content"].Value).ToList();
+                if (pageDate.Count == 0 || pageDate == null)
+                {
+                    date = DateTime.Today;
+                }
+                else
+                {
+                    date = DateTime.Parse(pageDate[0]);
+                }
+
+                string title;
+                var pageTitle = htmlDoc.DocumentNode.Descendants("title").Where(t => t != null).Select(t => t.InnerHtml).ToList();
+                if (pageTitle.Count == 0 || pageTitle == null)
+                {
+                    title = "Page Title Not Found";
+                }
+                else
+                {
+                    title = pageTitle[0];
+                }
+                //InsertToTable(htmlUrl, date, title);
+                urlInsertions.Enqueue(new WebPageEntity(htmlUrl, date, title));
+                htmlDocuments.Enqueue(new HtmlUrlNode(htmlUrl, htmlDoc.DocumentNode));
             }
         }
+    }
 
-        private void InsertToTable(string url, DateTime date, string title)
+    internal class UrlFinder : ThreadWorker
+    {
+        public override void Run()
         {
-            WebPageEntity webPage = new WebPageEntity(url, date, title);
-            TableOperation insert = TableOperation.Insert(webPage);
-            urlTable.Execute(insert);
+            while (true)
+            {
+                if (htmlDocuments.Count > 0)
+                {
+                    HtmlUrlNode foundPage = htmlDocuments.Dequeue() as HtmlUrlNode;
+                    ParsePageLinks(foundPage.rootUrl, foundPage.documentNode);
+                }
+                Thread.Sleep(10);
+            }
         }
+        private void ParsePageLinks(string htmlUrl, HtmlNode rootNode)
+        {
+            var links = rootNode.Descendants("a").ToList().Where(a => a.Attributes["href"] != null && a.Attributes["href"].Value != "/").Select(a => a.Attributes["href"]).ToList();
+            if (links != null && links.Count > 0)
+            {
+                foreach (HtmlAttribute pageLinkAttribute in links)
+                {
+                    string pageLink = pageLinkAttribute.Value;
 
-        //private void ParseXmlUrl(string xmlUrl)
+                    string foundUrl;
+                    if (UriValidator.IsAbsoluteUrl(pageLink))
+                    {
+                        foundUrl = pageLink;
+                    }
+                    else
+                    {
+                        var baseUrl = new Uri(htmlUrl);
+                        var url = new Uri(baseUrl, pageLink);
+                        foundUrl = url.AbsoluteUri;
+                    }
+                    if (UriValidator.IsValidHtml(foundUrl))
+                    {
+                        CloudQueueMessage newHtmlPage = new CloudQueueMessage(foundUrl);
+                        htmlQueue.AddMessage(newHtmlPage);
+                    }
+                }
+            }
+        }
+    }
+
+    internal class XmlParser : ThreadWorker
+    {
+        public override void Run()
+        {
+            while (true)
+            {
+                CloudQueueMessage xmlMessage = xmlQueue.GetMessage();
+                if (xmlMessage != null)
+                {
+                    xmlQueue.DeleteMessage(xmlMessage);
+                    ParseXmlUrl(xmlMessage.AsString);
+                }
+                Thread.Sleep(100);
+            }
+        }
         private void ParseXmlUrl(string xmlUrl)
         {
-            //string xmlUrl = (string)state; 
-            // and is not a 'disallow link'
-
             if (visitedUrls.Contains(xmlUrl))
             {
                 return;
@@ -174,106 +245,26 @@ namespace CrawlerWorkerRole
                 }
             }
         }
+    }
 
-        private void ParseHtmlUrl(string htmlUrl)
+    internal class TableManager : ThreadWorker
+    {
+        public override void Run()
         {
-            if (visitedUrls.Contains(htmlUrl))
+            while (true)
             {
-                return;
-            }
-            // grab title and date, throw into table (start 3rd concurrent thread?)
-            visitedUrls.Add(htmlUrl);
-            HtmlDocument htmlDoc = new HtmlDocument();
-
-            try
-            {
-                //htmlDoc.Load(htmlUrl);
-                using (var client = new WebClient())
+                if (urlInsertions.Count > 0)
                 {
-                    htmlDoc.LoadHtml(client.DownloadString(htmlUrl));
+                    WebPageEntity toInsert = urlInsertions.Dequeue() as WebPageEntity;
+                    InsertToTable(toInsert);
                 }
-                if (htmlDoc.ParseErrors != null && htmlDoc.ParseErrors.Count() > 0)
-                {
-                    throw new WebException();
-                }
+                Thread.Sleep(10);
             }
-            catch (Exception e)
-            {
-                CloudQueueMessage errorMessage = new CloudQueueMessage(htmlUrl);
-                errorQueue.AddMessage(errorMessage);
-            }
-
-
-            DateTime date;
-            var pageDate = htmlDoc.DocumentNode.Descendants("meta").Where(m => m.Attributes["content"] != null
-            && m.GetAttributeValue("name", "").Equals("pubdate", StringComparison.InvariantCultureIgnoreCase)
-            || m.GetAttributeValue("name", "").Equals("og:pubdate", StringComparison.InvariantCultureIgnoreCase)).Select(m => m.Attributes["content"].Value).ToList();
-            if (pageDate.Count == 0 || pageDate == null)
-            {
-                date = DateTime.Today;
-            }
-            else
-            {
-                date = DateTime.Parse(pageDate[0]);
-            }
-
-            string title;
-            var pageTitle = htmlDoc.DocumentNode.Descendants("title").Where(t => t != null).Select(t => t.InnerHtml).ToList();
-            if (pageTitle.Count == 0 || pageTitle == null)
-            {
-                title = "Page Title Not Found";
-            }
-            else
-            {
-                title = pageTitle[0];
-            }
-            ThreadPool.QueueUserWorkItem(state => InsertToTable(htmlUrl, date, title));
-
-            var links = htmlDoc.DocumentNode.Descendants("a").ToList().Where(a => a.Attributes["href"] != null && a.Attributes["href"].Value != "/").Select(a => a.Attributes["href"]).ToList();
-            if (links != null && links.Count > 0)
-            {
-
-                foreach (HtmlAttribute pageLinkAttribute in links)
-                {
-                    string pageLink = pageLinkAttribute.Value;
-
-                    string foundUrl;
-                    if (UriValidator.IsAbsoluteUrl(pageLink))
-                    {
-                        foundUrl = pageLink;
-                    }
-                    else
-                    {
-                        var baseUrl = new Uri(htmlUrl);
-                        var url = new Uri(baseUrl, pageLink);
-                        foundUrl = url.AbsoluteUri;
-                    }
-                    if (!visitedUrls.Contains(foundUrl) && UriValidator.IsValidHtml(foundUrl))
-                    {
-                        CloudQueueMessage newHtmlPage = new CloudQueueMessage(foundUrl);
-                        htmlQueue.AddMessage(newHtmlPage);
-                    }
-                }
-            }
-
         }
-
-        private void ParseForbiddenUrl(string forbiddenUrl)
+        private void InsertToTable(WebPageEntity webPage)
         {
-            if (!IsForbidden(forbiddenUrl))
-                forbiddenUrls.Add(forbiddenUrl);
-        }
-
-        private bool IsForbidden(string url)
-        {
-            foreach (string forbidden in forbiddenUrls)
-            {
-                if (url.Contains(forbidden))
-                {
-                    return true;
-                }
-            }
-            return false;
+            TableOperation insert = TableOperation.Insert(webPage);
+            urlTable.Execute(insert);
         }
     }
 }

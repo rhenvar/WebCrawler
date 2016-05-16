@@ -10,8 +10,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WebCrawler</RootNamespace>
     <AssemblyName>WebCrawler</AssemblyName>
-    <StartDevelopmentStorage>True</StartDevelopmentStorage>
+    <StartDevelopmentStorage>False</StartDevelopmentStorage>
     <Name>WebCrawler</Name>
+    <UseWebProjectPorts>True</UseWebProjectPorts>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,10 +58,14 @@
   <ItemGroup>
     <Folder Include="CrawlerWebRoleContent\" />
     <Folder Include="CrawlerWorkerRoleContent\" />
+    <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="CrawlerWebRoleContent\diagnostics.wadcfgx" />
     <DiagnosticsConfiguration Include="CrawlerWorkerRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\CloudServiceKrolProduction.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

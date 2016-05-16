@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="WebCrawler" generation="1" functional="0" release="0" Id="47a65d49-76e2-47fe-aebc-43ebff650332" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
+<serviceModel xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="WebCrawler" generation="1" functional="0" release="0" Id="f199f234-47be-41a0-aff0-27ea2d16f24d" dslVersion="1.2.0.0" xmlns="http://schemas.microsoft.com/dsltools/RDSM">
   <groups>
     <group name="WebCrawlerGroup" generation="1" functional="0" release="0">
       <componentports>
@@ -10,6 +10,11 @@
         </inPort>
       </componentports>
       <settings>
+        <aCS name="CrawlerWebRole:APPINSIGHTS_INSTRUMENTATIONKEY" defaultValue="">
+          <maps>
+            <mapMoniker name="/WebCrawler/WebCrawlerGroup/MapCrawlerWebRole:APPINSIGHTS_INSTRUMENTATIONKEY" />
+          </maps>
+        </aCS>
         <aCS name="CrawlerWebRole:Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" defaultValue="">
           <maps>
             <mapMoniker name="/WebCrawler/WebCrawlerGroup/MapCrawlerWebRole:Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
@@ -18,6 +23,11 @@
         <aCS name="CrawlerWebRoleInstances" defaultValue="[1,1,1]">
           <maps>
             <mapMoniker name="/WebCrawler/WebCrawlerGroup/MapCrawlerWebRoleInstances" />
+          </maps>
+        </aCS>
+        <aCS name="CrawlerWorkerRole:APPINSIGHTS_INSTRUMENTATIONKEY" defaultValue="">
+          <maps>
+            <mapMoniker name="/WebCrawler/WebCrawlerGroup/MapCrawlerWorkerRole:APPINSIGHTS_INSTRUMENTATIONKEY" />
           </maps>
         </aCS>
         <aCS name="CrawlerWorkerRole:Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" defaultValue="">
@@ -44,6 +54,11 @@
         </lBChannel>
       </channels>
       <maps>
+        <map name="MapCrawlerWebRole:APPINSIGHTS_INSTRUMENTATIONKEY" kind="Identity">
+          <setting>
+            <aCSMoniker name="/WebCrawler/WebCrawlerGroup/CrawlerWebRole/APPINSIGHTS_INSTRUMENTATIONKEY" />
+          </setting>
+        </map>
         <map name="MapCrawlerWebRole:Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" kind="Identity">
           <setting>
             <aCSMoniker name="/WebCrawler/WebCrawlerGroup/CrawlerWebRole/Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" />
@@ -52,6 +67,11 @@
         <map name="MapCrawlerWebRoleInstances" kind="Identity">
           <setting>
             <sCSPolicyIDMoniker name="/WebCrawler/WebCrawlerGroup/CrawlerWebRoleInstances" />
+          </setting>
+        </map>
+        <map name="MapCrawlerWorkerRole:APPINSIGHTS_INSTRUMENTATIONKEY" kind="Identity">
+          <setting>
+            <aCSMoniker name="/WebCrawler/WebCrawlerGroup/CrawlerWorkerRole/APPINSIGHTS_INSTRUMENTATIONKEY" />
           </setting>
         </map>
         <map name="MapCrawlerWorkerRole:Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" kind="Identity">
@@ -72,6 +92,7 @@
               <inPort name="Endpoint1" protocol="http" portRanges="80" />
             </componentports>
             <settings>
+              <aCS name="APPINSIGHTS_INSTRUMENTATIONKEY" defaultValue="" />
               <aCS name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" defaultValue="" />
               <aCS name="__ModelData" defaultValue="&lt;m role=&quot;CrawlerWebRole&quot; xmlns=&quot;urn:azure:m:v1&quot;&gt;&lt;r name=&quot;CrawlerWebRole&quot;&gt;&lt;e name=&quot;Endpoint1&quot; /&gt;&lt;/r&gt;&lt;r name=&quot;CrawlerWorkerRole&quot;&gt;&lt;e name=&quot;WorkerEndpoint&quot; /&gt;&lt;/r&gt;&lt;/m&gt;" />
             </settings>
@@ -89,6 +110,7 @@
         <groupHascomponents>
           <role name="CrawlerWorkerRole" generation="1" functional="0" release="0" software="C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\WebCrawler\csx\Debug\roles\CrawlerWorkerRole" entryPoint="base\x64\WaHostBootstrapper.exe" parameters="base\x64\WaWorkerHost.exe " memIndex="-1" hostingEnvironment="consoleroleadmin" hostingEnvironmentVersion="2">
             <settings>
+              <aCS name="APPINSIGHTS_INSTRUMENTATIONKEY" defaultValue="" />
               <aCS name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" defaultValue="" />
               <aCS name="__ModelData" defaultValue="&lt;m role=&quot;CrawlerWorkerRole&quot; xmlns=&quot;urn:azure:m:v1&quot;&gt;&lt;r name=&quot;CrawlerWebRole&quot;&gt;&lt;e name=&quot;Endpoint1&quot; /&gt;&lt;/r&gt;&lt;r name=&quot;CrawlerWorkerRole&quot;&gt;&lt;e name=&quot;WorkerEndpoint&quot; /&gt;&lt;/r&gt;&lt;/m&gt;" />
             </settings>
@@ -115,9 +137,9 @@
     </group>
   </groups>
   <implements>
-    <implementation Id="ba115431-f286-47c9-9673-225efa814d8e" ref="Microsoft.RedDog.Contract\ServiceContract\WebCrawlerContract@ServiceDefinition">
+    <implementation Id="eeae9a4a-9cbb-4b52-9267-89aa2831b00d" ref="Microsoft.RedDog.Contract\ServiceContract\WebCrawlerContract@ServiceDefinition">
       <interfacereferences>
-        <interfaceReference Id="3e91428e-dd6f-4a93-8067-1a20c7f5b415" ref="Microsoft.RedDog.Contract\Interface\CrawlerWebRole:Endpoint1@ServiceDefinition">
+        <interfaceReference Id="36cd01b5-f501-447c-8bec-4d99db8ec2d7" ref="Microsoft.RedDog.Contract\Interface\CrawlerWebRole:Endpoint1@ServiceDefinition">
           <inPort>
             <inPortMoniker name="/WebCrawler/WebCrawlerGroup/CrawlerWebRole:Endpoint1" />
           </inPort>

@@ -12,7 +12,6 @@ C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\b
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\WindowsAzureTelemetryEvents.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\WindowsAzureEventSource.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.ServiceBus.xml
-C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\obj\Debug\CloudLibrary.csprojResolveAssemblyReference.cache
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Azure.KeyVault.Core.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\System.Spatial.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\Microsoft.Azure.KeyVault.Core.xml
@@ -59,3 +58,5 @@ C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\b
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\ru\System.Spatial.resources.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\zh-Hans\System.Spatial.resources.dll
 C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\zh-Hant\System.Spatial.resources.dll
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\bin\Debug\CloudLibrary.dll.config
+C:\Users\rhenvar\Documents\Visual Studio 2015\Projects\WebCrawler\CloudLibrary\obj\Debug\CloudLibrary.csprojResolveAssemblyReference.cache

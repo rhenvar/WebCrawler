@@ -4,12 +4,14 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="dd27e5b4-9015-4348-8862-58d0f6ee5ba0" />
     </ConfigurationSettings>
   </Role>
   <Role name="CrawlerWorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="dd27e5b4-9015-4348-8862-58d0f6ee5ba0" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
